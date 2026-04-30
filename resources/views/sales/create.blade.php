@@ -7,17 +7,59 @@
          @keydown.window.f3.prevent="openConfirmation()"
          @keydown.window.f4.prevent="openCustomerModal()"
     >
-        <div class="flex flex-col lg:flex-row h-[calc(100vh-100px)] space-y-4 lg:space-y-0 lg:space-x-4 relative">
+        <div class="flex flex-col lg:flex-row h-[calc(100vh-80px)] space-y-4 lg:space-y-0 lg:space-x-4 relative overflow-hidden">
 
-            <!-- Left Side: Transaction Details (70%) -->
-            <div class="w-full lg:w-[70%] flex flex-col space-y-4 h-full">
-                <!-- Search Bar (TomSelect) -->
-                <div class="relative z-20 mb-2">
-                    <select
-                        x-ref="productSelect"
-                        placeholder="Search Products (Name or SKU) [F1]..."
-                        autocomplete="off"
-                    ></select>
+            <!-- Category Sidebar (NEW) -->
+            <div class="hidden lg:flex w-48 flex-col bg-white rounded-lg shadow border border-gray-200 h-full overflow-hidden">
+                <div class="p-3 border-b border-gray-200 bg-gray-50 flex items-center gap-2">
+                    <x-heroicon-o-squares-2x2 class="w-4 h-4 text-gray-500" />
+                    <h2 class="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Categories</h2>
+                </div>
+                <div class="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+                    <button 
+                        @click="selectedCategory = null; fetchQuickProducts()"
+                        class="w-full text-left px-3 py-2 rounded-md text-xs font-medium transition-all"
+                        :class="selectedCategory === null ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-600 hover:bg-indigo-50'"
+                    >
+                        All Items
+                    </button>
+                    <template x-for="cat in categories" :key="cat.value">
+                        <button 
+                            @click="selectedCategory = cat.value; fetchQuickProducts()"
+                            class="w-full text-left px-3 py-2 rounded-md text-xs font-medium transition-all truncate"
+                            :class="selectedCategory === cat.value ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-600 hover:bg-indigo-50'"
+                            x-text="cat.text"
+                        ></button>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Left Side: Transaction Details (60%) -->
+            <div class="w-full lg:flex-1 flex flex-col space-y-4 h-full overflow-hidden">
+                <!-- Top Row: Search & Quick Selection Grid -->
+                <div class="flex flex-col space-y-2">
+                    <!-- Search Bar (TomSelect) -->
+                    <div class="relative z-30">
+                        <select
+                            x-ref="productSelect"
+                            placeholder="Scan Barcode or Search Product [F1]..."
+                            autocomplete="off"
+                        ></select>
+                    </div>
+
+                    <!-- Quick Selection Grid (Hardware Store style) -->
+                    <div x-show="quickProducts.length > 0" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 xl:grid-cols-6 gap-2 h-32 overflow-y-auto p-1 custom-scrollbar">
+                         <template x-for="p in quickProducts" :key="p.id">
+                            <button 
+                                @click="addToCart(p)"
+                                class="flex flex-col items-center justify-center p-2 bg-white border border-gray-200 rounded-lg hover:border-indigo-400 hover:bg-indigo-50 transition-all group relative overflow-hidden"
+                            >
+                                <div class="text-[10px] font-bold text-gray-800 text-center line-clamp-2" x-text="p.name"></div>
+                                <div class="text-[9px] text-indigo-600 font-bold mt-1" x-text="formatCurrency(p.selling_price)"></div>
+                                <div class="absolute top-0 right-0 p-0.5 bg-gray-100 rounded-bl-lg text-[8px] text-gray-500 font-mono" x-text="p.quantity"></div>
+                            </button>
+                         </template>
+                    </div>
                 </div>
 
                 <!-- Cart Table -->
@@ -157,8 +199,12 @@
                              </div>
                         </div>
                         <div class="flex justify-between text-red-500 text-sm" x-show="totalDiscount > 0">
-                            <span>Total Discount</span>
+                            <span>Item Discount</span>
                             <span x-text="'- ' + formatCurrency(totalDiscount)"></span>
+                        </div>
+                        <div class="flex justify-between text-gray-600 text-sm border-t border-gray-100 pt-2" x-show="taxTotal > 0">
+                            <span class="flex items-center gap-1">VAT (13%) <span class="text-[10px] bg-gray-100 px-1 rounded">Incl.</span></span>
+                            <span x-text="formatCurrency(taxTotal)"></span>
                         </div>
                         <div class="flex justify-between items-center pt-4 border-t border-gray-100">
                             <span class="text-lg font-bold text-gray-800">TOTAL</span>
@@ -241,7 +287,17 @@
                                 </div>
                             </div>
                         </template>
-
+                        <!-- Phone & PAN -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Phone</label>
+                                <input type="text" x-model="newCustomer.phone" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">PAN Number</label>
+                                <input type="text" x-model="newCustomer.pan_number" placeholder="9 digits" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+                        </div>
                         <div>
                             <textarea
                                 x-model="payment.notes"
@@ -292,6 +348,10 @@
                     saleStatus: 'completed',
                     isSubmitting: false,
 
+                    categories: [],
+                    selectedCategory: null,
+                    quickProducts: [],
+
                     // TomSelect Instances
                     productTs: null,
                     customerTs: null,
@@ -318,8 +378,42 @@
                         this.$watch('payment', (val) => localStorage.setItem('pos_payment', JSON.stringify(val)));
                         this.$watch('globalDiscount', (val) => localStorage.setItem('pos_globalDiscount', val));
 
+                        this.fetchCategories();
+                        this.fetchQuickProducts();
                         this.initProductSelect();
                         this.initCustomerSelect();
+                    },
+
+                    async fetchCategories() {
+                        try {
+                            const res = await fetch('{{ route("ajax.categories.search") }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                },
+                                body: JSON.stringify({ q: '' })
+                            });
+                            this.categories = await res.json();
+                        } catch (e) {
+                            console.error('Failed to fetch categories', e);
+                        }
+                    },
+
+                    async fetchQuickProducts() {
+                        try {
+                            const res = await fetch('{{ route("ajax.products.search") }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                },
+                                body: JSON.stringify({ q: '', category_id: this.selectedCategory })
+                            });
+                            this.quickProducts = await res.json();
+                        } catch (e) {
+                            console.error('Failed to fetch products', e);
+                        }
                     },
 
                     initProductSelect() {
@@ -499,6 +593,7 @@
                                     quantity: 1,
                                     max_stock: product.quantity,
                                     unit: product.unit ? product.unit.symbol : '',
+                                    tax_percentage: product.tax_percentage || 0,
                                     discount: 0
                                 });
                                 this.$dispatch('toast', { message: 'Product "' + product.name + '" added to cart.', type: 'success' });
@@ -544,6 +639,18 @@
 
                     get total() {
                         return this.subtotal - this.totalDiscount - this.globalDiscount;
+                    },
+
+                    get taxTotal() {
+                        // Assuming Inclusive Tax logic: Total / (1 + TaxRate/100)
+                        return this.cart.reduce((sum, item) => {
+                            if (item.tax_percentage > 0) {
+                                const itemTotal = (item.price - item.discount) * item.quantity;
+                                const taxable = itemTotal / (1 + (item.tax_percentage / 100));
+                                return sum + (itemTotal - taxable);
+                            }
+                            return sum;
+                        }, 0);
                     },
 
                     get change() {
@@ -806,7 +913,7 @@
         <!-- Create Customer Modal (Still using Blade/Alpine Hybrid for ease if reusable) -->
         <x-modal name="customer-modal" focusable>
             <div class="p-6" x-data="{
-                newCust: { name: '', email: '', phone: '', address: '', notes: '' },
+                newCust: { name: '', email: '', phone: '', pan_number: '', address: '', notes: '' },
                 errors: {},
                 loading: false,
                 async save() {
@@ -833,7 +940,7 @@
                         if (res.ok) {
                             this.$dispatch('close-modal', { name: 'customer-modal' });
                             this.$dispatch('customer-created', data);
-                            this.newCust = { name: '', email: '', phone: '', address: '', notes: '' };
+                            this.newCust = { name: '', email: '', phone: '', pan_number: '', address: '', notes: '' };
                             this.errors = {};
                         } else {
                             if (data.errors) {
@@ -874,9 +981,9 @@
                         <p x-show="errors.name" x-text="errors.name" class="text-sm font-medium text-red-600 mt-1" style="display: none;"></p>
                     </div>
 
-                    <!-- Contact Info -->
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <div class="w-full sm:w-1/2">
+                    <!-- Contact Info & PAN -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
                             <x-form-input
                                 name="new_email"
                                 label="Email"
@@ -885,13 +992,22 @@
                             />
                             <p x-show="errors.email" x-text="errors.email" class="text-sm font-medium text-red-600 mt-1" style="display: none;"></p>
                         </div>
-                        <div class="w-full sm:w-1/2">
+                        <div>
                             <x-form-input
                                 name="new_phone"
                                 label="Phone"
                                 x-model="newCust.phone"
                             />
                             <p x-show="errors.phone" x-text="errors.phone" class="text-sm font-medium text-red-600 mt-1" style="display: none;"></p>
+                        </div>
+                        <div>
+                            <x-form-input
+                                name="new_pan"
+                                label="PAN Number"
+                                x-model="newCust.pan_number"
+                                placeholder="9 digits"
+                            />
+                            <p x-show="errors.pan_number" x-text="errors.pan_number" class="text-sm font-medium text-red-600 mt-1" style="display: none;"></p>
                         </div>
                     </div>
 

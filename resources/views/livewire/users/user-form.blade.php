@@ -70,6 +70,16 @@
                 </div>
             </div>
 
+            <!-- Role -->
+            <div class="space-y-2">
+                <x-input-label for="role" :value="__('Role')" />
+                <select id="role" wire:model="role" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                    <option value="staff">Staff</option>
+                    <option value="admin">Admin</option>
+                </select>
+                <x-input-error :messages="$errors->get('role')" />
+            </div>
+
             <!-- Actions -->
             <div class="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-4">
                 <x-secondary-button type="button" x-on:click="$dispatch('close-modal', { name: 'user-form-modal' })">

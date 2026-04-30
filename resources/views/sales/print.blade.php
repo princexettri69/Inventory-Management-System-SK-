@@ -239,15 +239,20 @@
 <body>
 
     <div class="container">
+        <!-- Watermark/Title -->
+        <div style="text-align: center; margin-bottom: 10px;">
+            <h1 style="margin: 0; padding: 0; font-size: 14pt; text-decoration: underline;">TAX INVOICE</h1>
+        </div>
+
         <!-- Header -->
         <div class="header">
             <div class="header-left">
-                <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo-box" style="border:none; width: 120px; height: auto; object-fit: contain; margin-right: 15px;">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo-box" style="border:none; width: 100px; height: auto; object-fit: contain; margin-right: 15px;">
                 <div class="company-info">
                     <div class="company-name">{{ \App\Models\Setting::get('store_name', config('app.name')) }}</div>
-                    <div class="company-desc">General Trade & Suppliers</div>
+                    <div class="company-desc">Hardware, Construction Materials & Suppliers</div>
                     <div class="company-address">
-                        PAN No: 611101370<br>
+                        PAN No: {{ \App\Models\Setting::get('store_pan', '611101370') }}<br>
                         {{ \App\Models\Setting::get('store_address', 'Jl. Default No. 1') }}<br>
                         Ph. {{ \App\Models\Setting::get('store_phone', '-') }}
                     </div>
@@ -255,42 +260,52 @@
             </div>
             <div class="header-right">
                 <div class="header-row">
-                    <span>{{ $sale->sale_date->locale('en')->isoFormat('dddd, D MMMM Y') }}</span>
+                    <span class="header-label">Invoice No:</span>
+                    <span class="header-value" style="font-weight: bold;">{{ $sale->invoice_number }}</span>
                 </div>
                 <div class="header-row">
-                    <span class="header-label">Customer:</span>
+                    <span class="header-label">Date:</span>
+                    <span class="header-value">{{ $sale->sale_date->format('Y-m-d') }}</span>
+                </div>
+                <div class="header-row">
+                    <span class="header-label">Buyer:</span>
                     <span class="header-value">{{ $sale->customer->name ?? 'Guest' }}</span>
+                </div>
+                <div class="header-row">
+                    <span class="header-label">Buyer's PAN:</span>
+                    <span class="header-value">{{ $sale->customer->pan_number ?? '-' }}</span>
                 </div>
             </div>
         </div>
 
-        <!-- Invoice No Line -->
-        <div class="invoice-row">
-            <span class="invoice-label">INVOICE No.</span>
-            <span class="invoice-value">{{ $sale->invoice_number }}</span>
-        </div>
-
         <!-- Table -->
-        <table>
+        <table style="margin-top: 10px;">
             <thead>
                 <tr>
-                    <th class="col-name">Item Name</th>
+                    <th style="width: 5%;">S.N</th>
+                    <th class="col-name">Description of Goods</th>
                     <th class="col-qty">Qty</th>
-                    <th class="col-price">Price</th>
-                    <th class="col-disc">Discount</th>
-                    <th class="col-total">Amount</th>
+                    <th class="col-qty">Unit</th>
+                    <th class="col-price">Rate</th>
+                    <th class="col-total">Total Amount</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($sale->items as $item)
+                @foreach($sale->items as $index => $item)
                 @php
                     $finalPrice = $item->unit_price - $item->discount;
                 @endphp
                 <tr>
-                    <td class="col-name">{{ $item->product->name }}</td>
+                    <td style="text-align: center;">{{ $index + 1 }}</td>
+                    <td class="col-name">
+                        {{ $item->product->name }}
+                        @if($item->discount > 0)
+                        <div style="font-size: 7pt; color: #666;">(Discount: @money($item->discount) / unit)</div>
+                        @endif
+                    </td>
                     <td class="col-qty">{{ $item->quantity }}</td>
-                    <td class="col-price">@money($item->unit_price)</td>
-                    <td class="col-disc">{!! $item->discount > 0 ? "<span>" . format_money($item->discount) . "</span>" : '-' !!}</td>
+                    <td class="col-qty">{{ $item->product->unit->symbol ?? '' }}</td>
+                    <td class="col-price">@money($finalPrice)</td>
                     <td class="col-total">@money($item->subtotal)</td>
                 </tr>
                 @endforeach
@@ -298,6 +313,7 @@
                 {{-- Fill empty rows to maintain size --}}
                 @for($i = 0; $i < max(0, 8 - count($sale->items)); $i++)
                 <tr>
+                    <td style="text-align: center;">{{ count($sale->items) + $i + 1 }}</td>
                     <td>&nbsp;</td>
                     <td></td>
                     <td></td>
@@ -310,40 +326,57 @@
 
         <!-- Footer -->
         <div class="footer">
-            <div class="footer-left">
-                <div>Received By</div>
-                <div class="signature-space"></div>
-                <div>( .................................... )</div>
-            </div>
+            <div class="footer-left" style="width: 65%;">
+                <div style="margin-bottom: 10px;">
+                    <strong>In Words:</strong> 
+                    <span style="text-transform: capitalize; font-style: italic;">
+                        {{ amount_to_words($sale->total) }} Only.
+                    </span>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin-top: 30px;">
+                    <div style="text-align: center; width: 45%;">
+                        <div style="border-top: 1px solid #000; margin-top: 40px; padding-top: 5px;">Receiver's Signature</div>
+                    </div>
+                    <div style="text-align: center; width: 45%;">
+                        <div style="border-top: 1px solid #000; margin-top: 40px; padding-top: 5px;">Authorized Signature</div>
+                    </div>
+                </div>
 
-            <div class="footer-center">
-                <div class="disclaimer-box">
-                    Goods once sold cannot be returned. Thank you for your business!
+                <div class="disclaimer-box" style="margin-top: 20px; text-align: left; font-size: 7pt;">
+                    <strong>Terms & Conditions:</strong><br>
+                    1. Goods once sold will not be taken back.<br>
+                    2. Any discrepancies should be reported within 24 hours.
                 </div>
             </div>
 
-            <div class="footer-right">
+            <div class="footer-right" style="width: 35%; padding-left: 15px;">
                 <div class="amount-row">
-                    <span class="amount-label">Subtotal</span>
+                    <span class="amount-label">Gross Amount:</span>
                     <span class="amount-value">@money($sale->total + $sale->global_discount)</span>
                 </div>
                 @if($sale->global_discount > 0)
                 <div class="amount-row">
-                    <span class="amount-label">Extra Discount</span>
+                    <span class="amount-label">Global Disc:</span>
                     <span class="amount-value">- @money($sale->global_discount)</span>
                 </div>
                 @endif
+                
+                @php
+                    $taxableAmount = $sale->total - $sale->tax_total;
+                @endphp
+                
+                <div class="amount-row" style="border-top: 1px double #000; padding-top: 2px;">
+                    <span class="amount-label">Taxable Amt:</span>
+                    <span class="amount-value">@money($taxableAmount)</span>
+                </div>
                 <div class="amount-row">
-                    <span class="amount-label">Total</span>
+                    <span class="amount-label">VAT (13%):</span>
+                    <span class="amount-value">@money($sale->tax_total)</span>
+                </div>
+                <div class="amount-row" style="font-size: 11pt; border-top: 1px solid #000; margin-top: 5px; padding-top: 5px;">
+                    <span class="amount-label">NET TOTAL:</span>
                     <span class="amount-value">@money($sale->total)</span>
-                </div>
-                <div class="amount-row">
-                    <span class="amount-label">Cash Received</span>
-                    <span class="amount-value">@money($sale->cash_received)</span>
-                </div>
-                <div class="amount-row">
-                    <span class="amount-label">Change</span>
-                    <span class="amount-value">@money($sale->change)</span>
                 </div>
             </div>
         </div>

@@ -46,11 +46,13 @@ class SaleService
                     'subtotal' => 0,
                     'global_discount' => $data->global_discount,
                     'total_discount' => 0,
+                    'tax_total' => 0,
                     'total' => 0,
                 ]);
 
                 $totalSubtotal = 0;
                 $totalDiscount = 0;
+                $totalTax = 0;
                 $timestamp = now();
                 $saleItems = [];
 
@@ -83,6 +85,14 @@ class SaleService
 
                     $finalPrice = $unitPrice - $discount;
                     $subtotal   = $finalPrice * $quantity;
+                    
+                    // Tax calculation (Assuming Inclusive)
+                    $taxPercentage = $product->tax_percentage ?? 0;
+                    $taxAmount = 0;
+                    if ($taxPercentage > 0) {
+                        $taxableAmount = $subtotal / (1 + ($taxPercentage / 100));
+                        $taxAmount = (int) round($subtotal - $taxableAmount);
+                    }
 
                     $saleItems[] = [
                         'sale_id' => $sale->id,
@@ -93,12 +103,14 @@ class SaleService
                         'discount' => $discount,
                         'final_price' => $finalPrice,
                         'subtotal' => $subtotal,
+                        'tax_amount' => $taxAmount,
                         'created_at' => $timestamp,
                         'updated_at' => $timestamp,
                     ];
 
                     $totalSubtotal += $subtotal;
                     $totalDiscount += $discount * $quantity;
+                    $totalTax += $taxAmount;
                 }
 
                 // Batch insert items
@@ -128,6 +140,7 @@ class SaleService
                     'subtotal' => $totalSubtotal + $totalDiscount,
                     'total_discount' => $totalDiscount + $data->global_discount,
                     'global_discount' => $data->global_discount,
+                    'tax_total' => $totalTax,
                     'total' => $total,
                     'change' => $change,
                 ]);

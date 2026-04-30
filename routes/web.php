@@ -17,28 +17,52 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('profile', 'profile.index')->name('profile.index');
 
     // =========================================================================
-    // Master Data
+    // Admin Only Routes
     // =========================================================================
-    Route::prefix('master')->group(function () {
-        Route::view('customers', 'customers.index')->name('customers.index');
-        Route::view('suppliers', 'suppliers.index')->name('suppliers.index');
-        Route::view('categories', 'categories.index')->name('categories.index');
-        Route::view('units', 'units.index')->name('units.index');
-        Route::view('products', 'products.index')->name('products.index');
+    Route::middleware(['admin'])->group(function () {
+        // Master Data (Partial)
+        Route::prefix('master')->group(function () {
+            Route::view('suppliers', 'suppliers.index')->name('suppliers.index');
+            Route::view('categories', 'categories.index')->name('categories.index');
+            Route::view('units', 'units.index')->name('units.index');
+        });
+
+        // Purchases
+        Route::resource('purchases', PurchaseController::class);
+        Route::prefix('purchases/{purchase}')->name('purchases.')->controller(PurchaseController::class)->group(function () {
+            Route::patch('ordered', 'markOrdered')->name('mark-ordered');
+            Route::patch('received', 'markReceived')->name('mark-received');
+            Route::patch('paid', 'markPaid')->name('mark-paid');
+            Route::patch('cancel', 'cancel')->name('cancel');
+            Route::patch('restore-draft', 'restoreToDraft')->name('restore-draft');
+        });
+
+        // Finance
+        Route::prefix('finance')->name('finance.')->group(function () {
+            Route::view('categories', 'finance-categories.index')->name('categories.index');
+            Route::view('transactions', 'finance-transactions.index')->name('transactions.index');
+            Route::get('day-book', \App\Livewire\Finance\DayBook::class)->name('day-book');
+            Route::get('transactions/print/{printId}', [FinanceReportController::class, 'print'])->name('transactions.print');
+        });
+
+        // Settings & Users
+        Route::view('users', 'users.index')->name('users.index');
+        Route::view('settings', 'settings.index')->name('settings.index');
+
+        // Admin-only APIs
+        Route::prefix('ajax')->name('ajax.')->group(function () {
+            Route::post('suppliers', [\App\Http\Controllers\Api\SupplierController::class, 'search'])->name('suppliers.search');
+            Route::post('users', [\App\Http\Controllers\Api\UserController::class, 'search'])->name('users.search');
+            Route::post('finance-categories', [\App\Http\Controllers\Api\FinanceCategoryController::class, 'search'])->name('finance-categories.search');
+        });
     });
 
     // =========================================================================
-    // Transactions
+    // Staff & Admin Routes
     // =========================================================================
-
-    // Purchases
-    Route::resource('purchases', PurchaseController::class);
-    Route::prefix('purchases/{purchase}')->name('purchases.')->controller(PurchaseController::class)->group(function () {
-        Route::patch('ordered', 'markOrdered')->name('mark-ordered');
-        Route::patch('received', 'markReceived')->name('mark-received');
-        Route::patch('paid', 'markPaid')->name('mark-paid');
-        Route::patch('cancel', 'cancel')->name('cancel');
-        Route::patch('restore-draft', 'restoreToDraft')->name('restore-draft');
+    Route::prefix('master')->group(function () {
+        Route::view('customers', 'customers.index')->name('customers.index');
+        Route::view('products', 'products.index')->name('products.index');
     });
 
     // Sales
@@ -50,32 +74,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // =========================================================================
-    // Finance
-    // =========================================================================
-    Route::prefix('finance')->name('finance.')->group(function () {
-        Route::view('categories', 'finance-categories.index')->name('categories.index');
-        Route::view('transactions', 'finance-transactions.index')->name('transactions.index');
-        Route::get('transactions/print/{printId}', [FinanceReportController::class, 'print'])->name('transactions.print');
-    });
-
-    // =========================================================================
-    // Settings & Users
-    // =========================================================================
-    Route::view('users', 'users.index')->name('users.index');
-    Route::view('settings', 'settings.index')->name('settings.index');
-
-    // =========================================================================
     // Internal APIs (AJAX)
     // =========================================================================
     Route::prefix('ajax')->name('ajax.')->group(function () {
         Route::post('products', [\App\Http\Controllers\Api\ProductController::class, 'search'])->name('products.search');
-        Route::post('suppliers', [\App\Http\Controllers\Api\SupplierController::class, 'search'])->name('suppliers.search');
         Route::post('customers', [\App\Http\Controllers\Api\CustomerController::class, 'search'])->name('customers.search');
         Route::post('customers/store', [\App\Http\Controllers\Api\CustomerController::class, 'store'])->name('customers.store');
         Route::post('categories', [\App\Http\Controllers\Api\CategoryController::class, 'search'])->name('categories.search');
         Route::post('units', [\App\Http\Controllers\Api\UnitController::class, 'search'])->name('units.search');
-        Route::post('users', [\App\Http\Controllers\Api\UserController::class, 'search'])->name('users.search');
-        Route::post('finance-categories', [\App\Http\Controllers\Api\FinanceCategoryController::class, 'search'])->name('finance-categories.search');
     });
 });
 

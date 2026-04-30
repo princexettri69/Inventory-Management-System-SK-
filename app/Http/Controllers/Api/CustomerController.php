@@ -31,6 +31,7 @@ class CustomerController extends Controller
                         'text' => $customer->name . ($customer->phone ? ' | ' . $customer->phone : ''),
                         'name' => $customer->name,
                         'phone' => $customer->phone,
+                        'pan_number' => $customer->pan_number,
                     ];
                 });
         });
@@ -44,6 +45,7 @@ class CustomerController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'phone' => 'nullable|string|max:20',
+                'pan_number' => 'nullable|string|max:50',
                 'email' => 'nullable|email|max:255',
                 'address' => 'nullable|string|max:500',
                 'notes' => 'nullable|string|max:500',
@@ -51,6 +53,7 @@ class CustomerController extends Controller
 
             $data = array_merge([
                 'phone' => null,
+                'pan_number' => null,
                 'email' => null,
                 'address' => null,
                 'notes' => null,

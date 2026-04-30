@@ -17,76 +17,88 @@ class FinanceCategorySeeder extends Seeder
         $categories = [
             // Income
             [
-                'name' => 'Penjualan Produk',
-                'type' => FinanceCategoryType::Income,
-                'description' => 'Pendapatan langsung dari penjualan produk toko.',
+                'name'        => 'Product Sales',
+                'type'        => FinanceCategoryType::Income,
+                'description' => 'Revenue from direct product sales.',
             ],
             [
-                'name' => 'Layanan Jasa',
-                'type' => FinanceCategoryType::Income,
-                'description' => 'Pendapatan dari layanan jasa service atau konsultasi.',
+                'name'        => 'Service Income',
+                'type'        => FinanceCategoryType::Income,
+                'description' => 'Income from services or consultations.',
             ],
             [
-                'name' => 'Investasi',
-                'type' => FinanceCategoryType::Income,
-                'description' => 'Dividen atau bunga dari investasi modal.',
+                'name'        => 'Investment Returns',
+                'type'        => FinanceCategoryType::Income,
+                'description' => 'Dividends or interest from capital investments.',
             ],
             [
-                'name' => 'Pendapatan Lain-lain',
-                'type' => FinanceCategoryType::Income,
-                'description' => 'Pendapatan di luar operasional utama.',
+                'name'        => 'Other Income',
+                'type'        => FinanceCategoryType::Income,
+                'description' => 'Income outside core business operations.',
             ],
 
             // Expenses
             [
-                'name' => 'Gaji Karyawan',
-                'type' => FinanceCategoryType::Expense,
-                'description' => 'Biaya gaji bulanan dan tunjangan karyawan.',
+                'name'        => 'Staff Salaries',
+                'type'        => FinanceCategoryType::Expense,
+                'description' => 'Monthly salaries and allowances for employees.',
             ],
             [
-                'name' => 'Sewa Gedung',
-                'type' => FinanceCategoryType::Expense,
-                'description' => 'Biaya sewa toko atau gudang operasional.',
+                'name'        => 'Rent',
+                'type'        => FinanceCategoryType::Expense,
+                'description' => 'Shop or warehouse rental expenses.',
             ],
             [
-                'name' => 'Listrik & Air',
-                'type' => FinanceCategoryType::Expense,
-                'description' => 'Tagihan utilitas bulanan.',
+                'name'        => 'Electricity & Water',
+                'type'        => FinanceCategoryType::Expense,
+                'description' => 'Monthly utility bills.',
             ],
             [
-                'name' => 'Internet & Telepon',
-                'type' => FinanceCategoryType::Expense,
-                'description' => 'Biaya komunikasi dan koneksi internet.',
+                'name'        => 'Internet & Phone',
+                'type'        => FinanceCategoryType::Expense,
+                'description' => 'Communication and internet connectivity costs.',
             ],
             [
-                'name' => 'Pemasaran & Iklan',
-                'type' => FinanceCategoryType::Expense,
-                'description' => 'Biaya promosi, iklan sosial media, dan cetak.',
+                'name'        => 'Marketing & Advertising',
+                'type'        => FinanceCategoryType::Expense,
+                'description' => 'Costs for promotions, social media ads, and print.',
             ],
             [
-                'name' => 'Perawatan & Perbaikan',
-                'type' => FinanceCategoryType::Expense,
-                'description' => 'Biaya maintenance aset dan peralatan.',
+                'name'        => 'Maintenance & Repairs',
+                'type'        => FinanceCategoryType::Expense,
+                'description' => 'Asset and equipment maintenance costs.',
             ],
             [
-                'name' => 'Transportasi & Logistik',
-                'type' => FinanceCategoryType::Expense,
-                'description' => 'Biaya bensin, pengiriman, dan perjalanan dinas.',
+                'name'        => 'Transportation & Logistics',
+                'type'        => FinanceCategoryType::Expense,
+                'description' => 'Fuel, delivery, and travel expenses.',
             ],
             [
-                'name' => 'Pembelian Stok',
-                'type' => FinanceCategoryType::Expense,
-                'description' => 'Biaya pembelian barang dagangan (HPP).',
+                'name'        => 'Stock Purchase',
+                'type'        => FinanceCategoryType::Expense,
+                'description' => 'Cost of goods purchased for resale (COGS).',
+            ],
+            [
+                'name'        => 'Office Supplies',
+                'type'        => FinanceCategoryType::Expense,
+                'description' => 'Stationery and office consumables.',
+            ],
+            [
+                'name'        => 'Miscellaneous Expenses',
+                'type'        => FinanceCategoryType::Expense,
+                'description' => 'Other business expenses not categorized above.',
             ],
         ];
 
         foreach ($categories as $category) {
-            FinanceCategory::create([
-                'name' => $category['name'],
-                'slug' => Str::slug($category['name']),
-                'type' => $category['type'],
-                'description' => $category['description'],
-            ]);
+            FinanceCategory::firstOrCreate(
+                ['slug' => Str::slug($category['name'])],
+                [
+                    'name'        => $category['name'],
+                    'type'        => $category['type'],
+                    'description' => $category['description'],
+                ]
+            );
         }
     }
 }

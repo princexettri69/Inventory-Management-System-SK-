@@ -19,6 +19,7 @@ class UserForm extends Component
     public $email;
     public $password;
     public $password_confirmation;
+    public $role = 'staff';
 
     public function rules(): array
     {
@@ -27,20 +28,15 @@ class UserForm extends Component
             'username' => ['required', 'string', 'max:255', Rule::unique('users', 'username')->ignore($this->user?->id)],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($this->user?->id)],
             'password' => [$this->isEditing ? 'nullable' : 'required', 'string', 'min:8', 'confirmed'],
+            'role' => ['required', 'string', 'in:admin,staff'],
         ];
     }
 
-    #[On('open-modal')]
-    public function handleOpenModal($name): void
-    {
-        if ($name === 'user-form-modal' && !$this->isEditing) {
-            $this->create(); // Ensure we reset if opening for create
-        }
-    }
-
+    #[On('create-user')]
     public function create(): void
     {
-        $this->reset(['user', 'isEditing', 'name', 'username', 'email', 'password', 'password_confirmation']);
+        $this->reset(['user', 'isEditing', 'name', 'username', 'email', 'password', 'password_confirmation', 'role']);
+        $this->role = 'staff'; // Default
         $this->dispatch('open-modal', name: 'user-form-modal');
     }
 
@@ -53,6 +49,7 @@ class UserForm extends Component
         $this->name = $user->name;
         $this->username = $user->username;
         $this->email = $user->email;
+        $this->role = $user->role;
         $this->password = '';
         $this->password_confirmation = '';
 
@@ -68,6 +65,7 @@ class UserForm extends Component
             username: $this->username,
             email: $this->email,
             password: $this->password ?: null, // Pass null if empty in edit mode
+            role: $this->role,
         );
 
         try {
@@ -84,7 +82,7 @@ class UserForm extends Component
             $this->dispatch('toast', message: $message, type: 'success');
 
             // Reset after save
-            $this->reset(['user', 'isEditing', 'name', 'username', 'email', 'password', 'password_confirmation']);
+            $this->reset(['user', 'isEditing', 'name', 'username', 'email', 'password', 'password_confirmation', 'role']);
 
         } catch (\Exception $e) {
             $this->dispatch('toast', message: 'Error: ' . $e->getMessage(), type: 'error');

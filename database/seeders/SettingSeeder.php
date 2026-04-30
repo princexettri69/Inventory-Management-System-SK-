@@ -15,6 +15,7 @@ class SettingSeeder extends Seeder
         Setting::set('store_name', 'S.K Trade & Suppliers');
         Setting::set('store_address', 'Your Address Here');
         Setting::set('store_phone', 'Your Phone Number');
+        Setting::set('store_pan', '611101370');
         Setting::set('opening_balance_date', now()->startOfYear()->toDateString());
         Setting::set('opening_balance_amount', '0');
         Setting::set('currency_symbol', 'Rs.');

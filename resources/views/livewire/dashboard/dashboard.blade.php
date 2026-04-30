@@ -69,6 +69,7 @@
             </div>
         </div>
 
+        @if(Auth::user()->role === 'admin')
         <!-- Gross Profit -->
         <div class="rounded-xl border bg-card text-card-foreground shadow-sm">
             <div class="p-4 flex flex-row items-center justify-between space-y-0 pb-2">
@@ -105,6 +106,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
          <!-- Low Stock Alert -->
          <div class="rounded-xl border bg-card text-card-foreground shadow-sm">
@@ -126,7 +128,7 @@
     <!-- Charts Section -->
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <!-- Sales Trend -->
-        <div class="col-span-1 lg:col-span-2 rounded-xl border bg-card text-card-foreground shadow-sm break-inside-avoid">
+        <div class="{{ Auth::user()->role === 'admin' ? 'col-span-1 lg:col-span-2' : 'col-span-full' }} rounded-xl border bg-card text-card-foreground shadow-sm break-inside-avoid">
             <div class="p-4 flex flex-col space-y-1.5 pb-2">
                 <h3 class="font-semibold leading-none tracking-tight">Sales Trend</h3>
                 <p class="text-xs text-muted-foreground">Daily sales performance.</p>
@@ -136,6 +138,7 @@
             </div>
         </div>
 
+        @if(Auth::user()->role === 'admin')
         <!-- Cash Flow -->
         <div class="col-span-1 rounded-xl border bg-card text-card-foreground shadow-sm break-inside-avoid">
             <div class="p-4 flex flex-col space-y-1.5 pb-2">
@@ -146,6 +149,7 @@
                 <div id="cashFlowChart" class="w-full h-[250px]"></div>
             </div>
         </div>
+        @endif
     </div>
 
     <!-- Data Tables Section -->
@@ -185,6 +189,7 @@
             </div>
         </div>
 
+        @if(Auth::user()->role === 'admin')
         <!-- Expense Breakdown -->
         <div class="col-span-1 rounded-xl border bg-card text-card-foreground shadow-sm break-inside-avoid">
             <div class="p-4 flex flex-col space-y-1.5 pb-2">
@@ -195,6 +200,7 @@
                 <div id="expenseChart" class="w-full h-[250px] flex items-center justify-center"></div>
             </div>
         </div>
+        @endif
     </div>
 
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-2">

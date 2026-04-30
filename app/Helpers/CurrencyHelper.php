@@ -32,3 +32,16 @@ if (!function_exists('format_money')) {
         return "{$symbol} {$formattedAmount}";
     }
 }
+
+if (!function_exists('amount_to_words')) {
+    /**
+     * Convert amount to words.
+     *
+     * @param float|int $amount
+     * @return string
+     */
+    function amount_to_words($amount)
+    {
+        return \App\Helpers\NumberHelper::amountToWords($amount);
+    }
+}

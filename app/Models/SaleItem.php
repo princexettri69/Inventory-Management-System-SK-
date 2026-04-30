@@ -19,6 +19,7 @@ class SaleItem extends Model
         'discount',
         'final_price',
         'subtotal',
+        'tax_amount',
     ];
 
     protected $casts = [
@@ -27,6 +28,7 @@ class SaleItem extends Model
         'discount' => 'integer',
         'final_price' => 'integer',
         'subtotal' => 'integer',
+        'tax_amount' => 'integer',
         'quantity' => 'integer',
     ];
 

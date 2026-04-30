@@ -21,6 +21,7 @@ class CustomerService
                     'name' => $data->name,
                     'email' => $data->email,
                     'phone' => $data->phone,
+                    'pan_number' => $data->pan_number,
                     'address' => $data->address,
                     'notes' => $data->notes,
                 ]);
@@ -45,6 +46,7 @@ class CustomerService
                     'name' => $data->name,
                     'email' => $data->email,
                     'phone' => $data->phone,
+                    'pan_number' => $data->pan_number,
                     'address' => $data->address,
                     'notes' => $data->notes,
                 ]);

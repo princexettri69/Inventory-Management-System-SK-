@@ -8,6 +8,7 @@ class CustomerData
         public readonly string $name,
         public readonly ?string $email,
         public readonly ?string $phone,
+        public readonly ?string $pan_number,
         public readonly ?string $address,
         public readonly ?string $notes,
     ) {}
@@ -18,6 +19,7 @@ class CustomerData
             name: $data['name'],
             email: empty($data['email']) ? null : $data['email'],
             phone: empty($data['phone']) ? null : $data['phone'],
+            pan_number: empty($data['pan_number']) ? null : $data['pan_number'],
             address: empty($data['address']) ? null : $data['address'],
             notes: empty($data['notes']) ? null : $data['notes'],
         );
@@ -29,6 +31,7 @@ class CustomerData
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
+            'pan_number' => $this->pan_number,
             'address' => $this->address,
             'notes' => $this->notes,
         ];

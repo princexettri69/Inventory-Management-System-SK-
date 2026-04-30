@@ -16,8 +16,10 @@ class Product extends Model
         'unit_id',
         'sku',
         'name',
+        'image',
         'purchase_price',
         'selling_price',
+        'tax_percentage',
         'quantity',
         'min_stock',
         'is_active',
@@ -28,6 +30,7 @@ class Product extends Model
     protected $casts = [
         'purchase_price' => 'integer',
         'selling_price' => 'integer',
+        'tax_percentage' => 'float',
         'quantity' => 'integer',
         'min_stock' => 'integer',
         'is_active' => 'boolean',
