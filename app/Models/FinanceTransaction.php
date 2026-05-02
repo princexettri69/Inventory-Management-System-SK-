@@ -22,6 +22,8 @@ class FinanceTransaction extends Model
         'created_by',
         'reference_id',
         'reference_type',
+        'customer_id',
+        'supplier_id',
     ];
 
     protected $casts = [
@@ -39,6 +41,16 @@ class FinanceTransaction extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
     }
 
     public function reference()

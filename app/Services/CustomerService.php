@@ -71,6 +71,11 @@ class CustomerService
             try {
                 $customer->delete();
 
+            } catch (\Illuminate\Database\QueryException $e) {
+                if ($e->getCode() === '23000') {
+                    throw CustomerException::deletionFailed('Cannot delete this customer because they have associated sales or transactions.', ['id' => $customer->id]);
+                }
+                throw CustomerException::deletionFailed($e->getMessage(), ['id' => $customer->id]);
             } catch (Exception $e) {
                 throw CustomerException::deletionFailed($e->getMessage(), ['id' => $customer->id]);
             }

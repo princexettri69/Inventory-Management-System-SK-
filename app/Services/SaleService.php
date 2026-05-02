@@ -125,14 +125,14 @@ class SaleService
                 $total = $totalSubtotal - $data->global_discount;
 
                 if ($data->status === SaleStatus::COMPLETED) {
-                    if ($data->payment_method === \App\Enums\PaymentMethod::CASH && $data->cash_received < $total) {
+                    if ($data->payment_method === PaymentMethod::CASH && $data->cash_received < $total) {
                         throw SaleException::insufficientPayment($total, $data->cash_received);
                     }
                 }
                 $change = 0;
 
                 // Calculate change if payment method is cash
-                if ($data->payment_method === \App\Enums\PaymentMethod::CASH && $data->cash_received >= $total) {
+                if ($data->payment_method === PaymentMethod::CASH && $data->cash_received >= $total) {
                     $change = $data->cash_received - $total;
                 }
 

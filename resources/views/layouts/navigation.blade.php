@@ -12,7 +12,7 @@
                 <div class="flex items-center">
                     <div class="flex flex-row gap-1">
                         <!-- Dashboard Link -->
-                        <a href="{{ route('dashboard') }}" class="group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-50 {{ request()->routeIs('dashboard') ? 'bg-accent/50 text-accent-foreground' : 'bg-background' }}">
+                        <a href="{{ route('dashboard') }}" wire:navigate class="group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-50 {{ request()->routeIs('dashboard') ? 'bg-accent/50 text-accent-foreground' : 'bg-background' }}">
                             <x-heroicon-o-squares-2x2 class="mr-2 h-4 w-4" />
                             Dashboard
                         </a>
@@ -26,13 +26,13 @@
                                 Sales
                             </x-slot>
                             <x-slot name="content">
-                                <x-dropdown-link :href="route('sales.create')" :active="request()->routeIs('sales.create')">
+                                <x-dropdown-link :href="route('sales.create')" wire:navigate :active="request()->routeIs('sales.create')">
                                     POS
                                 </x-dropdown-link>
-                                <x-dropdown-link :href="route('sales.index')" :active="request()->routeIs(['sales.index', 'sales.show'])">
+                                <x-dropdown-link :href="route('sales.index')" wire:navigate :active="request()->routeIs(['sales.index', 'sales.show'])">
                                     Sales
                                 </x-dropdown-link>
-                                <x-dropdown-link :href="route('customers.index')" :active="request()->routeIs('customers.*')">
+                                <x-dropdown-link :href="route('customers.index')" wire:navigate :active="request()->routeIs('customers.*')">
                                     Customers
                                 </x-dropdown-link>
                             </x-slot>
@@ -48,10 +48,10 @@
                                 Purchases
                             </x-slot>
                             <x-slot name="content">
-                                <x-dropdown-link :href="route('purchases.index')" :active="request()->routeIs('purchases.*')">
+                                <x-dropdown-link :href="route('purchases.index')" wire:navigate :active="request()->routeIs('purchases.*')">
                                     Purchases
                                 </x-dropdown-link>
-                                <x-dropdown-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')">
+                                <x-dropdown-link :href="route('suppliers.index')" wire:navigate :active="request()->routeIs('suppliers.*')">
                                     Suppliers
                                 </x-dropdown-link>
                             </x-slot>
@@ -68,13 +68,16 @@
                                 Finance
                             </x-slot>
                             <x-slot name="content">
-                                <x-dropdown-link :href="route('finance.day-book')" :active="request()->routeIs('finance.day-book')">
+                                <x-dropdown-link :href="route('finance.day-book')" wire:navigate :active="request()->routeIs('finance.day-book')">
                                     Day Book
                                 </x-dropdown-link>
-                                <x-dropdown-link :href="route('finance.transactions.index')" :active="request()->routeIs('finance.transactions.index')">
+                                <x-dropdown-link :href="route('finance.ledger-book')" wire:navigate :active="request()->routeIs('finance.ledger-book')">
+                                    Ledger Book
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('finance.transactions.index')" wire:navigate :active="request()->routeIs('finance.transactions.index')">
                                     Transactions
                                 </x-dropdown-link>
-                                <x-dropdown-link :href="route('finance.categories.index')" :active="request()->routeIs('finance.categories.index')">
+                                <x-dropdown-link :href="route('finance.categories.index')" wire:navigate :active="request()->routeIs('finance.categories.index')">
                                     Categories
                                 </x-dropdown-link>
                             </x-slot>
@@ -199,7 +202,7 @@
                     </div>
 
                     <div class="flex w-full flex-col gap-4">
-                        <a href="{{ route('dashboard') }}" class="text-md font-semibold hover:underline {{ request()->routeIs('dashboard') ? 'text-primary' : '' }}">Dashboard</a>
+                        <a href="{{ route('dashboard') }}" wire:navigate class="text-md font-semibold hover:underline {{ request()->routeIs('dashboard') ? 'text-primary' : '' }}">Dashboard</a>
 
                         <!-- Mobile Sales Accordion -->
                         <div x-data="{ expanded: {{ request()->routeIs(['sales.*', 'customers.*']) ? 'true' : 'false' }} }" class="border-b-0">
@@ -209,9 +212,9 @@
                             </button>
                             <div x-show="expanded" x-collapse>
                                 <div class="mt-2 flex flex-col gap-2 pl-4 border-l border-border ml-2">
-                                    <a class="text-sm font-medium hover:underline py-1 {{ request()->routeIs(['sales.index', 'sales.show']) ? 'text-primary' : '' }}" href="{{ route('sales.index') }}">Sales</a>
-                                    <a class="text-sm font-medium hover:underline py-1 {{ request()->routeIs('sales.create') ? 'text-primary' : '' }}" href="{{ route('sales.create') }}">POS</a>
-                                    <a class="text-sm font-medium hover:underline py-1 {{ request()->routeIs('customers.index') ? 'text-primary' : '' }}" href="{{ route('customers.index') }}">Customers</a>
+                                    <a class="text-sm font-medium hover:underline py-1 {{ request()->routeIs(['sales.index', 'sales.show']) ? 'text-primary' : '' }}" href="{{ route('sales.index') }}" wire:navigate>Sales</a>
+                                    <a class="text-sm font-medium hover:underline py-1 {{ request()->routeIs('sales.create') ? 'text-primary' : '' }}" href="{{ route('sales.create') }}" wire:navigate>POS</a>
+                                    <a class="text-sm font-medium hover:underline py-1 {{ request()->routeIs('customers.index') ? 'text-primary' : '' }}" href="{{ route('customers.index') }}" wire:navigate>Customers</a>
                                 </div>
                             </div>
                         </div>
@@ -225,8 +228,8 @@
                             </button>
                             <div x-show="expanded" x-collapse>
                                 <div class="mt-2 flex flex-col gap-2 pl-4 border-l border-border ml-2">
-                                    <a class="text-sm font-medium hover:underline py-1 {{ request()->routeIs('purchases.index') ? 'text-primary' : '' }}" href="{{ route('purchases.index') }}">Purchases</a>
-                                    <a class="text-sm font-medium hover:underline py-1 {{ request()->routeIs('suppliers.index') ? 'text-primary' : '' }}" href="{{ route('suppliers.index') }}">Suppliers</a>
+                                    <a class="text-sm font-medium hover:underline py-1 {{ request()->routeIs('purchases.index') ? 'text-primary' : '' }}" href="{{ route('purchases.index') }}" wire:navigate>Purchases</a>
+                                    <a class="text-sm font-medium hover:underline py-1 {{ request()->routeIs('suppliers.index') ? 'text-primary' : '' }}" href="{{ route('suppliers.index') }}" wire:navigate>Suppliers</a>
                                 </div>
                             </div>
                         </div>
@@ -241,9 +244,10 @@
                             </button>
                             <div x-show="expanded" x-collapse>
                                 <div class="mt-2 flex flex-col gap-2 pl-4 border-l border-border ml-2">
-                                    <a class="text-sm font-medium hover:underline py-1 {{ request()->routeIs('finance.day-book') ? 'text-primary' : '' }}" href="{{ route('finance.day-book') }}">Day Book</a>
-                                    <a class="text-sm font-medium hover:underline py-1 {{ request()->routeIs('finance.transactions.index') ? 'text-primary' : '' }}" href="{{ route('finance.transactions.index') }}">Transactions</a>
-                                    <a class="text-sm font-medium hover:underline py-1 {{ request()->routeIs('finance.categories.index') ? 'text-primary' : '' }}" href="{{ route('finance.categories.index') }}">Categories</a>
+                                    <a class="text-sm font-medium hover:underline py-1 {{ request()->routeIs('finance.day-book') ? 'text-primary' : '' }}" href="{{ route('finance.day-book') }}" wire:navigate>Day Book</a>
+                                    <a class="text-sm font-medium hover:underline py-1 {{ request()->routeIs('finance.ledger-book') ? 'text-primary' : '' }}" href="{{ route('finance.ledger-book') }}" wire:navigate>Ledger Book</a>
+                                    <a class="text-sm font-medium hover:underline py-1 {{ request()->routeIs('finance.transactions.index') ? 'text-primary' : '' }}" href="{{ route('finance.transactions.index') }}" wire:navigate>Transactions</a>
+                                    <a class="text-sm font-medium hover:underline py-1 {{ request()->routeIs('finance.categories.index') ? 'text-primary' : '' }}" href="{{ route('finance.categories.index') }}" wire:navigate>Categories</a>
                                 </div>
                             </div>
                         </div>

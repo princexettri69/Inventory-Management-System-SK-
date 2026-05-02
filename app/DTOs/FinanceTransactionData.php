@@ -13,6 +13,8 @@ readonly class FinanceTransactionData
         public ?string $description,
         public ?string $external_reference,
         public int $created_by,
+        public ?int $customer_id = null,
+        public ?int $supplier_id = null,
     ) {}
 
     public function toArray(): array
@@ -24,6 +26,8 @@ readonly class FinanceTransactionData
             'description' => $this->description,
             'external_reference' => $this->external_reference,
             'created_by' => $this->created_by,
+            'customer_id' => $this->customer_id,
+            'supplier_id' => $this->supplier_id,
         ];
     }
 
@@ -36,6 +40,8 @@ readonly class FinanceTransactionData
             description: $data['description'] ?? null,
             external_reference: $data['external_reference'] ?? null,
             created_by: (int) ($data['created_by'] ?? \Illuminate\Support\Facades\Auth::id()),
+            customer_id: isset($data['customer_id']) ? (int) $data['customer_id'] : null,
+            supplier_id: isset($data['supplier_id']) ? (int) $data['supplier_id'] : null,
         );
     }
 }

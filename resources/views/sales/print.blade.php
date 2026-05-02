@@ -6,6 +6,9 @@
     <title>Invoice #{{ $sale->invoice_number }}</title>
     <style>
         @media print {
+            .no-print {
+                display: none !important;
+            }
             @page {
                 size: A5 landscape;
                 margin: 0;
@@ -16,6 +19,31 @@
                 print-color-adjust: exact;
             }
         }
+        
+        /* Action Buttons */
+        .action-buttons {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+        .btn {
+            padding: 8px 15px;
+            margin: 0 5px;
+            font-size: 12pt;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            font-family: Arial, sans-serif;
+        }
+        .btn-print { background-color: #007bff; }
+        .btn-print:hover { background-color: #0056b3; }
+        .btn-whatsapp { background-color: #25D366; }
+        .btn-whatsapp:hover { background-color: #1ebe5d; }
 
         body {
             font-family: Arial, sans-serif;
@@ -237,11 +265,62 @@
     </style>
 </head>
 <body>
+    @php
+        $whatsappNumber = '';
+        if($sale->customer && $sale->customer->phone) {
+            $phone = preg_replace('/[^0-9]/', '', $sale->customer->phone);
+            if(strlen($phone) == 10) {
+                $whatsappNumber = '977' . $phone;
+            } else {
+                $whatsappNumber = $phone;
+            }
+        }
+        
+        $waMessage = "Hello " . ($sale->customer->name ?? 'Customer') . ",\n\n";
+        $waMessage .= "Here is your Estimate Bill from S.K. Trade & Suppliers.\n";
+        $waMessage .= "Invoice No: *" . $sale->invoice_number . "*\n";
+        $waMessage .= "Net Total: *Rs. " . number_format($sale->total, 2) . "*\n";
+        
+        $oldBalance = 0;
+        if($sale->customer_id) {
+            $transactions = \App\Models\FinanceTransaction::with('category')
+                ->where('customer_id', $sale->customer_id)
+                ->where('created_at', '<', $sale->created_at)
+                ->get();
+            $debit = 0;
+            $credit = 0;
+            foreach ($transactions as $t) {
+                if ($t->category && $t->category->type === \App\Enums\FinanceCategoryType::Income) {
+                    $debit += $t->amount;
+                } else {
+                    $credit += $t->amount;
+                }
+            }
+            $oldBalance = $debit - $credit;
+            
+            if($oldBalance > 0) {
+                $waMessage .= "Previous Balance: *Rs. " . number_format($oldBalance, 2) . "*\n";
+                $waMessage .= "Total Due: *Rs. " . number_format($oldBalance + max(0, $sale->total - $sale->cash_received), 2) . "*\n";
+            }
+        }
+        
+        $waMessage .= "\nThank you for doing business with us!\n_Itahari-6, Dharan Line | Ph: 9705451066_";
+        $waUrl = "https://wa.me/" . $whatsappNumber . "?text=" . urlencode($waMessage);
+    @endphp
+
+    <div class="no-print action-buttons">
+        <button onclick="window.print()" class="btn btn-print">🖨️ Print Receipt</button>
+        @if($whatsappNumber)
+            <a href="{{ $waUrl }}" target="_blank" class="btn btn-whatsapp">💬 Send via WhatsApp</a>
+        @else
+            <button class="btn btn-whatsapp" style="opacity: 0.5; cursor: not-allowed;" title="Customer phone number is missing or invalid">💬 Send via WhatsApp (No Phone)</button>
+        @endif
+    </div>
 
     <div class="container">
         <!-- Watermark/Title -->
         <div style="text-align: center; margin-bottom: 10px;">
-            <h1 style="margin: 0; padding: 0; font-size: 14pt; text-decoration: underline;">TAX INVOICE</h1>
+            <h1 style="margin: 0; padding: 0; font-size: 14pt; text-decoration: underline;">ESTIMATE BILL</h1>
         </div>
 
         <!-- Header -->
@@ -249,12 +328,10 @@
             <div class="header-left">
                 <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo-box" style="border:none; width: 100px; height: auto; object-fit: contain; margin-right: 15px;">
                 <div class="company-info">
-                    <div class="company-name">{{ \App\Models\Setting::get('store_name', config('app.name')) }}</div>
                     <div class="company-desc">Hardware, Construction Materials & Suppliers</div>
                     <div class="company-address">
-                        PAN No: {{ \App\Models\Setting::get('store_pan', '611101370') }}<br>
-                        {{ \App\Models\Setting::get('store_address', 'Jl. Default No. 1') }}<br>
-                        Ph. {{ \App\Models\Setting::get('store_phone', '-') }}
+                        Itahari-6, Dharan Line<br>
+                        Ph. 9705451066
                     </div>
                 </div>
             </div>
@@ -362,22 +439,17 @@
                 </div>
                 @endif
                 
-                @php
-                    $taxableAmount = $sale->total - $sale->tax_total;
-                @endphp
-                
-                <div class="amount-row" style="border-top: 1px double #000; padding-top: 2px;">
-                    <span class="amount-label">Taxable Amt:</span>
-                    <span class="amount-value">@money($taxableAmount)</span>
-                </div>
-                <div class="amount-row">
-                    <span class="amount-label">VAT (13%):</span>
-                    <span class="amount-value">@money($sale->tax_total)</span>
-                </div>
                 <div class="amount-row" style="font-size: 11pt; border-top: 1px solid #000; margin-top: 5px; padding-top: 5px;">
                     <span class="amount-label">NET TOTAL:</span>
                     <span class="amount-value">@money($sale->total)</span>
                 </div>
+
+                @if($sale->customer_id && isset($oldBalance) && $oldBalance > 0)
+                    <div class="amount-row" style="font-size: 9pt; border-top: 1px dotted #000; margin-top: 5px; padding-top: 5px;">
+                        <span class="amount-label">Previous Balance:</span>
+                        <span class="amount-value">@money($oldBalance)</span>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

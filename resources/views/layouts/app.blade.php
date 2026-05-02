@@ -15,8 +15,25 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+        
+        <style>
+            [x-cloak] { display: none !important; }
+            .livewire-progress {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 3px;
+                background-color: #3b82f6;
+                z-index: 9999;
+                transition: width 0.3s ease-in-out;
+            }
+        </style>
     </head>
     <body class="font-sans antialiased bg-background text-foreground">
+        <div id="livewire-loader" class="livewire-progress" style="width: 0%"></div>
         <div class="min-h-screen bg-background flex flex-col">
             <div class="flex-1">
                 @include('layouts.navigation')
@@ -43,6 +60,21 @@
         @stack('scripts')
         <script>
             document.addEventListener('livewire:initialized', () => {
+                const loader = document.getElementById('livewire-loader');
+                
+                Livewire.hook('request', ({ respond, succeed, fail }) => {
+                    loader.style.width = '30%';
+                    loader.style.display = 'block';
+
+                    respond(() => {
+                        loader.style.width = '100%';
+                        setTimeout(() => {
+                            loader.style.width = '0%';
+                            loader.style.display = 'none';
+                        }, 300);
+                    });
+                });
+
                 Livewire.on('open-print-window', (event) => {
                     let url = event.url;
                     if (url) {

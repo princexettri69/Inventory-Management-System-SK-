@@ -42,6 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::view('categories', 'finance-categories.index')->name('categories.index');
             Route::view('transactions', 'finance-transactions.index')->name('transactions.index');
             Route::get('day-book', \App\Livewire\Finance\DayBook::class)->name('day-book');
+            Route::get('ledger-book', \App\Livewire\Finance\LedgerBook::class)->name('ledger-book');
             Route::get('transactions/print/{printId}', [FinanceReportController::class, 'print'])->name('transactions.print');
         });
 
