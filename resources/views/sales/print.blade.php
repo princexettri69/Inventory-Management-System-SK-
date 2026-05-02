@@ -444,11 +444,24 @@
                     <span class="amount-value">@money($sale->total)</span>
                 </div>
 
-                @if($sale->customer_id && isset($oldBalance) && $oldBalance > 0)
+                @if($sale->customer_id && isset($oldBalance))
+                    @if($oldBalance > 0)
                     <div class="amount-row" style="font-size: 9pt; border-top: 1px dotted #000; margin-top: 5px; padding-top: 5px;">
                         <span class="amount-label">Previous Balance:</span>
                         <span class="amount-value">@money($oldBalance)</span>
                     </div>
+                    @endif
+                    
+                    @php
+                        $totalBalance = $oldBalance + max(0, $sale->total - $sale->cash_received);
+                    @endphp
+                    
+                    @if($totalBalance > 0)
+                    <div class="amount-row" style="font-size: 11pt; border-top: 2px solid #000; margin-top: 5px; padding-top: 5px;">
+                        <span class="amount-label">Total Balance:</span>
+                        <span class="amount-value">@money($totalBalance)</span>
+                    </div>
+                    @endif
                 @endif
             </div>
         </div>
