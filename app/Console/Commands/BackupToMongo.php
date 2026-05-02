@@ -68,7 +68,7 @@ class BackupToMongo extends Command
         
         $count = 0;
         foreach ($items as $item) {
-            DB::connection('mongodb')->collection($collectionName)->updateOrInsert(
+            DB::connection('mongodb')->table($collectionName)->updateOrInsert(
                 ['id' => $item->id],
                 $item->toArray()
             );
@@ -90,7 +90,7 @@ class BackupToMongo extends Command
             $data = $sale->toArray();
             
             // MongoDB allows nested documents, which is perfect for items
-            DB::connection('mongodb')->collection('sales')->updateOrInsert(
+            DB::connection('mongodb')->table('sales')->updateOrInsert(
                 ['id' => $sale->id],
                 $data
             );
