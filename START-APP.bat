@@ -39,15 +39,18 @@ php artisan cache:clear >nul 2>&1
 echo  [OK] Caches cleared.
 
 :: ---- Start the Laravel server in the background ----
-echo  [..] Starting web server on http://localhost:8000 ...
+echo  [..] Starting web server on http://192.168.18.11:8000 ...
 echo.
 
 :: Open browser after 2 seconds
-start "" /B cmd /c "timeout /t 2 >nul && start http://localhost:8000"
+start "" /B cmd /c "timeout /t 2 >nul && start http://192.168.18.11:8000"
 
 :: Start server (this keeps the window open - closing it stops the app)
 echo  ============================================
-echo   App is running at: http://localhost:8000
+echo   App is running at:
+echo.
+echo   YOUR PC (Main)  : http://localhost:8000
+echo   BRANCH PCs (LAN): http://192.168.18.11:8000
 echo.
 echo   LOGIN DETAILS:
 echo   Username : admin
@@ -58,7 +61,7 @@ echo   [Close this window to STOP the server]
 echo  ============================================
 echo.
 
-php artisan serve --port=8000
+php artisan serve --host=0.0.0.0 --port=8000
 
 echo.
 echo  Server stopped. Press any key to exit.

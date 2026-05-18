@@ -64,13 +64,13 @@ class BackupToMongo extends Command
     private function backupCollection($modelClass, $collectionName)
     {
         $this->comment("Syncing {$collectionName}...");
-        $items = $modelClass::all();
+        $items = $modelClass::all()->toArray();
         
         $count = 0;
         foreach ($items as $item) {
             DB::connection('mongodb')->table($collectionName)->updateOrInsert(
-                ['id' => $item->id],
-                $item->toArray()
+                ['id' => $item['id']],
+                $item
             );
             $count++;
         }
@@ -83,16 +83,14 @@ class BackupToMongo extends Command
     private function backupSales()
     {
         $this->comment("Syncing sales (with items)...");
-        $sales = Sale::with('items')->get();
+        $sales = Sale::with('items')->get()->toArray();
         
         $count = 0;
         foreach ($sales as $sale) {
-            $data = $sale->toArray();
-            
             // MongoDB allows nested documents, which is perfect for items
             DB::connection('mongodb')->table('sales')->updateOrInsert(
-                ['id' => $sale->id],
-                $data
+                ['id' => $sale['id']],
+                $sale
             );
             $count++;
         }
