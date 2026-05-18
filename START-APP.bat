@@ -1,10 +1,10 @@
 @echo off
-title S.K Trade & Suppliers - Inventory System
+title MPR Group PVT Ltd - Inventory System
 color 0A
 
 echo.
 echo  ============================================
-echo   S.K Trade ^& Suppliers - Inventory System
+echo   MPR Group PVT Ltd - Inventory System
 echo  ============================================
 echo.
 

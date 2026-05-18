@@ -1,1 +1,1 @@
-<img src="{{ asset('images/logo.png') }}" {{ $attributes }} alt="S.K Trade & Suppliers Logo">
+<img src="{{ asset('images/logo.png') }}" {{ $attributes }} alt="MPR Group PVT Ltd Logo">

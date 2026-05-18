@@ -12,7 +12,7 @@ class SettingSeeder extends Seeder
      */
     public function run(): void
     {
-        Setting::set('store_name', 'S.K Trade & Suppliers');
+        Setting::set('store_name', 'MPR Group PVT Ltd');
         Setting::set('store_address', 'Itahari-6, Dharan Line');
         Setting::set('store_phone', '9705451066');
         Setting::set('store_pan', '611101370');

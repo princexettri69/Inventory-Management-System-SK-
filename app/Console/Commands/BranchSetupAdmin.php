@@ -27,7 +27,7 @@ class BranchSetupAdmin extends Command
      */
     public function handle()
     {
-        $email = $this->option('email') ?? 'admin@sktrade.com';
+        $email = $this->option('email') ?? 'admin@mprgroup.com';
         $password = $this->option('password') ?? 'password';
         $name = $this->option('name') ?? 'Branch Admin';
 

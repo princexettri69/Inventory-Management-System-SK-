@@ -1,10 +1,10 @@
 @echo off
-title S.K Trade & Suppliers - Branch First-Time Setup
+title MPR Group PVT Ltd - Branch First-Time Setup
 color 0B
 
 echo.
 echo  ============================================
-echo   S.K Trade ^& Suppliers
+echo   MPR Group PVT Ltd
 echo   BRANCH FIRST-TIME SETUP WIZARD
 echo  ============================================
 echo.
@@ -61,9 +61,9 @@ if "%ADMIN_PASS%"=="" (
 
 :: ---- Ask for Admin Email ----
 echo.
-set /p ADMIN_EMAIL="  Enter Admin Email (default: admin@sktrade.com): "
+set /p ADMIN_EMAIL="  Enter Admin Email (default: admin@mprgroup.com): "
 if "%ADMIN_EMAIL%"=="" (
-    set "ADMIN_EMAIL=admin@sktrade.com"
+    set "ADMIN_EMAIL=admin@mprgroup.com"
 )
 
 :: ---- Write .env with branch name ----
@@ -112,7 +112,7 @@ echo  [OK] Default data added.
 echo  [..] Setting admin credentials...
 php artisan branch:setup-admin --email="%ADMIN_EMAIL%" --password="%ADMIN_PASS%" --name="%BRANCH_NAME% Admin"
 if %ERRORLEVEL% NEQ 0 (
-    echo  [WARN] Could not set custom admin. Using defaults: admin@sktrade.com / password
+    echo  [WARN] Could not set custom admin. Using defaults: admin@mprgroup.com / password
 )
 
 :: ---- Generate app key ----
